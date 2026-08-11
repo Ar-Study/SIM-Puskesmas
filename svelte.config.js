@@ -8,7 +8,7 @@ const config = {
     adapter: adapter({
       pages: 'build',
       assets: 'build',
-      fallback: '404.html',
+      fallback: '404.html', // Wajib untuk SPA di GitHub Pages
       precompress: false,
       strict: false
     }),
