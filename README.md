@@ -39,4 +39,6 @@ npm run build
 
 You can preview the production build with `npm run preview`.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+This project is configured for GitHub Pages with `@sveltejs/adapter-static` and builds to the `build` directory.
+
+If your repository name differs from `SIM-Puskesmas`, update the `base` path in `svelte.config.js` before deploying.

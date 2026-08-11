@@ -1,14 +1,67 @@
 <script>
-  import { enhance } from '$app/forms';
-  import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
+  import { createClient } from '$lib/supabaseClient';
+  import { onMount } from 'svelte';
 
-  let form = $derived($page.form);
+  const supabase = createClient();
 
   let isLogin = $state(true);
   let isLoading = $state(false);
+  let error = $state('');
+  let success = $state('');
+  let email = $state('');
+  let password = $state('');
+  let fullName = $state('');
+
+  onMount(async () => {
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+
+    if (session) {
+      await goto(`${base}/`);
+    }
+  });
 
   function toggleMode() {
+    error = '';
+    success = '';
     isLogin = !isLogin;
+  }
+
+  async function submitForm() {
+    isLoading = true;
+    error = '';
+    success = '';
+
+    const response = isLogin
+      ? await supabase.auth.signInWithPassword({ email, password })
+      : await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName
+          }
+        }
+      });
+
+    isLoading = false;
+
+    if (response.error) {
+      error = response.error.message;
+      return;
+    }
+
+    if (isLogin) {
+      await goto(`${base}/`);
+      return;
+    }
+
+    success = 'Pendaftaran berhasil. Silakan cek email Anda untuk konfirmasi.';
+    password = '';
+    isLogin = true;
   }
 </script>
 
@@ -16,23 +69,19 @@
   <div class="auth-card">
     <h1>{isLogin ? 'Login' : 'Daftar'}</h1>
 
-    {#if form?.error}
-      <div class="error-message">{form.error}</div>
+    {#if error}
+      <div class="error-message">{error}</div>
     {/if}
 
-    {#if form?.success}
-      <div class="success-message">{form.success}</div>
+    {#if success}
+      <div class="success-message">{success}</div>
     {/if}
 
     <form
-      method="POST"
-      action={isLogin ? '?/login' : '?/register'}
-      use:enhance={() => {
-        isLoading = true;
-        return async () => {
-          isLoading = false;
-        };
-      }}
+      onsubmit={(event) => {
+			event.preventDefault();
+			submitForm();
+		}}
     >
       {#if !isLogin}
         <div class="form-group">
@@ -42,6 +91,7 @@
             id="full_name"
             name="full_name"
             placeholder="Masukkan nama lengkap"
+            bind:value={fullName}
             required
           />
         </div>
@@ -54,6 +104,7 @@
           id="email"
           name="email"
           placeholder="Masukkan email"
+          bind:value={email}
           required
         />
       </div>
@@ -65,6 +116,7 @@
           id="password"
           name="password"
           placeholder="Masukkan password"
+          bind:value={password}
           required
           minlength="6"
         />
