@@ -15,7 +15,7 @@
   let isNewPatient = $state(true);
   let searching = $state(false);
 
-  let clinics = $state([]);
+   let clinics = $state([]);
   let doctors = $state([]);
   let payors = $state([]);
 
@@ -226,6 +226,8 @@
           status_keluar: '0',
           visit_type: 'rawat_jalan',
           payor_id: form.payor_id || null,
+          kd_poli_bpjs: selectedClinic?.kd_poli_bpjs || null,
+          kode_antrean: selectedClinic?.kode_antrean || null,
           description: form.description || null
         })
         .select()

@@ -65,11 +65,12 @@
   let drugDuration = $state('');
 
   // Tagihan
-  let treatmentBills = $state([]);
+   let treatmentBills = $state([]);
   let tariffSearch = $state('');
   let tariffResults = $state([]);
   let searchingTariff = $state(false);
   let billQuantity = $state(1);
+  let invoice = $state(null);
 
   let totalBiaya = $derived(
     treatmentBills.reduce((sum, b) => sum + (b.amount || 0), 0)
@@ -227,6 +228,46 @@
     }
   }
 
+  async function loadInvoice() {
+    try {
+      const { data } = await supabase
+        .from('billing_invoices')
+        .select('*')
+        .eq('visit_id', visitId)
+        .maybeSingle();
+      invoice = data;
+    } catch (e) {
+      console.error('Gagal memuat invoice:', e);
+    }
+  }
+
+  async function createInvoice() {
+    saving = true;
+    try {
+      const totalAmount = totalBiaya;
+      const { data, error } = await supabase
+        .from('billing_invoices')
+        .insert({
+          visit_id: visitId,
+          total_amount: totalAmount,
+          discount: 0,
+          net_amount: totalAmount,
+          status: 'unpaid'
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      invoice = data;
+      await logAudit('CREATE', 'billing_invoices', data.invoice_id, null, { visit_id: visitId, total_amount: totalAmount });
+      showToast('Tagihan berhasil dibuat untuk kasir');
+    } catch (e) {
+      console.error('Gagal buat tagihan:', e);
+      showToast('Gagal membuat tagihan: ' + e.message, 'error');
+    } finally {
+      saving = false;
+    }
+  }
+
   onMount(async () => {
     try {
       const currentUser = await getCurrentUser();
@@ -251,7 +292,8 @@
       loadLabOrders(),
       loadLabCatalog(),
       loadPrescriptions(),
-      loadTreatmentBills()
+      loadTreatmentBills(),
+      loadInvoice()
     ]);
 
     loading = false;
@@ -274,7 +316,7 @@
         spo2: assessment.spo2 ? Number(assessment.spo2) : null,
         subjective: assessment.subjective,
         objective: assessment.objective,
-        created_by: profile?.id
+         created_by: profile?.profilePersisted ? profile?.id : null
       };
 
       if (existingAssessmentId) {
@@ -314,7 +356,7 @@
         obyektif: cpptForm.obyektif,
         assessment: cpptForm.assessment,
         planning: cpptForm.planning,
-        created_by: profile?.id
+         created_by: profile?.profilePersisted ? profile?.id : null
       };
 
       const { data, error } = await supabase
@@ -455,7 +497,7 @@
         test_name: test.test_name,
         category: test.category,
         notes: '',
-        created_by: profile?.id
+         created_by: profile?.profilePersisted ? profile?.id : null
       };
 
       const { data, error } = await supabase
@@ -554,7 +596,7 @@
         prescription_type: 'rajal',
         doctor_id: visit?.doctor_id,
         notes: '',
-        created_by: profile?.id
+         created_by: profile?.profilePersisted ? profile?.id : null
       };
 
       const { data: rxData, error: rxError } = await supabase
@@ -630,7 +672,7 @@
         unit_price: tariff.price,
         amount: amount,
         description: tariff.name,
-        created_by: profile?.id
+         created_by: profile?.profilePersisted ? profile?.id : null
       };
 
       const { data, error } = await supabase
@@ -669,16 +711,49 @@
 
   async function markAsExamined() {
     try {
-      const { error } = await supabase
+      saving = true;
+
+      const { error: visitErr } = await supabase
         .from('patient_visitations')
         .update({ status_periksa: '1', updated_at: new Date().toISOString() })
         .eq('visit_id', visitId);
-      if (error) throw error;
+      if (visitErr) throw visitErr;
+
       visit = { ...visit, status_periksa: '1' };
-      showToast('Pasien ditandai sudah diperiksa');
+
+      const totalAmount = totalBiaya;
+      const netAmount = totalAmount;
+
+      const { data: existingInvoice } = await supabase
+        .from('billing_invoices')
+        .select('invoice_id')
+        .eq('visit_id', visitId)
+        .single();
+
+      if (!existingInvoice) {
+        const { data: invData, error: invErr } = await supabase
+          .from('billing_invoices')
+          .insert({
+            visit_id: visitId,
+            total_amount: totalAmount,
+            discount: 0,
+            net_amount: netAmount,
+            status: 'unpaid'
+          })
+          .select()
+          .single();
+         if (invErr) throw invErr;
+         invoice = invData;
+         await logAudit('CREATE', 'billing_invoices', invData?.invoice_id, null, { visit_id: visitId, total_amount: totalAmount });
+       }
+
+      visit = { ...visit, status_periksa: '1' };
+      showToast('Pasien ditandai sudah diperiksa. Tagihan otomatis dibuat untuk kasir.');
     } catch (e) {
       console.error('Gagal update status:', e);
-      showToast('Gagal mengubah status', 'error');
+      showToast('Gagal mengubah status: ' + e.message, 'error');
+    } finally {
+      saving = false;
     }
   }
 </script>
@@ -762,6 +837,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
               Selesai Periksa
+            </button>
+          {:else if !invoice}
+            <button class="btn-primary btn-sm" onclick={createInvoice}>
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9" />
+              </svg>
+              Buat Tagihan
             </button>
           {:else}
             <span class="badge badge-success">

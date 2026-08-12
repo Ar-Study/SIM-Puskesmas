@@ -36,7 +36,9 @@
           *,
           patient_visitations (
             visit_id,
-            patients (full_name, no_rm),
+            kd_poli_bpjs,
+            kode_antrean,
+            patients (full_name, no_rm, insurance_number),
             clinics (name)
           )
         `)
@@ -107,15 +109,17 @@
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr>
-              <th class="table-header px-4 py-3 text-left">Invoice</th>
-              <th class="table-header px-4 py-3 text-left">No RM</th>
-              <th class="table-header px-4 py-3 text-left">Pasien</th>
-              <th class="table-header px-4 py-3 text-left">Poli</th>
-              <th class="table-header px-4 py-3 text-left">Total</th>
-              <th class="table-header px-4 py-3 text-left">Status</th>
-              <th class="table-header px-4 py-3 text-left">Aksi</th>
-            </tr>
+              <tr>
+                <th class="table-header px-4 py-3 text-left">Invoice</th>
+                <th class="table-header px-4 py-3 text-left">No RM</th>
+                <th class="table-header px-4 py-3 text-left">Pasien</th>
+                <th class="table-header px-4 py-3 text-left">Poli</th>
+                <th class="table-header px-4 py-3 text-left">Kode BPJS</th>
+                <th class="table-header px-4 py-3 text-left">No BPJS</th>
+                <th class="table-header px-4 py-3 text-left">Total</th>
+                <th class="table-header px-4 py-3 text-left">Status</th>
+                <th class="table-header px-4 py-3 text-left">Aksi</th>
+              </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             {#each filteredInvoices as inv}
@@ -124,6 +128,8 @@
                 <td class="table-cell font-mono text-xs">{inv.patient_visitations?.patients?.no_rm || '-'}</td>
                 <td class="table-cell font-medium">{inv.patient_visitations?.patients?.full_name || '-'}</td>
                 <td class="table-cell">{inv.patient_visitations?.clinics?.name || '-'}</td>
+                <td class="table-cell font-mono text-xs">{inv.patient_visitations?.kd_poli_bpjs || '-'}</td>
+                <td class="table-cell font-mono text-xs">{inv.patient_visitations?.patients?.insurance_number || '-'}</td>
                 <td class="table-cell font-semibold">{formatCurrency(inv.net_amount)}</td>
                 <td class="table-cell">
                   {#if inv.status === 'paid'}

@@ -16,14 +16,28 @@ const pool = new pg.Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+const MIGRATIONS = [
+  '001_initial_schema.sql',
+  '002_seed_data.sql',
+  '003_rls_policies.sql',
+  '004_poli_bpjs.sql',
+  '005_fix_profile_trigger.sql',
+  '006_compat_columns.sql'
+];
+
 async function migrate() {
   const client = await pool.connect();
   try {
-    const migrationFile = join(__dirname, '..', 'supabase', 'migrations', '001_initial_schema.sql');
-    const sql = readFileSync(migrationFile, 'utf8');
-    console.log('Running migration...');
-    await client.query(sql);
-    console.log('Migration completed successfully!');
+    const migrationsDir = join(__dirname, '..', 'supabase', 'migrations');
+
+    for (const file of MIGRATIONS) {
+      const sql = readFileSync(join(migrationsDir, file), 'utf8');
+      console.log(`Running migration ${file}...`);
+      await client.query(sql);
+      console.log(`  ${file} OK`);
+    }
+
+    console.log('All migrations completed successfully!');
   } catch (err) {
     console.error('Migration failed:', err.message);
   } finally {

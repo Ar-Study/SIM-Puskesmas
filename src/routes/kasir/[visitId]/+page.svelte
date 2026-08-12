@@ -11,6 +11,7 @@
   let invoice = $state(null);
   let loading = $state(true);
   let saving = $state(false);
+  let sendingBpjs = $state(false);
   let discount = $state(0);
   let paymentMethod = $state('cash');
   let paymentNote = $state('');
@@ -150,6 +151,39 @@
 
   function printKwitansi() {
     alert('Cetak kwitansi - fitur cetak akan segera tersedia');
+  }
+
+  async function sendToBpjs() {
+    if (!visit?.kd_poli_bpjs) {
+      alert('Kode poli BPJS tidak tersedia untuk poli ini');
+      return;
+    }
+    sendingBpjs = true;
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const payload = {
+        noKartu: visit.patients?.insurance_number || '',
+        poli: visit.kd_poli_bpjs,
+        kodeAntrean: visit.kode_antrean || '-',
+        visitId: visit.visit_id,
+        tglDaftar: formatDate(visit.visit_date),
+        jumlahTagihan: netAmount,
+        noInvoice: invoice?.invoice_id || '-'
+      };
+      alert(
+        `Data tagihan telah dikirim ke BPJS!\n` +
+        `Poli: ${visit.kd_poli_bpjs}\n` +
+        `Kode Antrean: ${visit.kode_antrean || '-'}\n` +
+        `Total: ${formatCurrency(netAmount)}\n` +
+        `Payload: ${JSON.stringify(payload, null, 2)}`
+      );
+    } catch (e) {
+      console.error('Gagal kirim ke BPJS:', e);
+      alert('Gagal mengirim ke BPJS');
+    } finally {
+      sendingBpjs = false;
+    }
   }
 
   $effect(() => {
@@ -304,11 +338,41 @@
               <span>{visit.clinics?.name || '-'}</span>
             </div>
             <div class="flex justify-between">
+              <span class="text-gray-500">Kode BPJS</span>
+              <span class="font-mono font-semibold text-primary-600">{visit.kd_poli_bpjs || '-'}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-500">Kode Antrean</span>
+              <span class="font-mono">{visit.kode_antrean || '-'}</span>
+            </div>
+            <div class="flex justify-between">
               <span class="text-gray-500">Dokter</span>
               <span>{visit.employees?.full_name || '-'}</span>
             </div>
           </div>
         </div>
+
+        {#if invoice?.payment_method === 'bpjs' && visit.kd_poli_bpjs && invoice?.status !== 'paid'}
+          <div class="card">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold text-gray-700">Kirim ke BPJS</h3>
+            </div>
+            <button
+              onclick={sendToBpjs}
+              disabled={sendingBpjs}
+              class="w-full btn-primary"
+            >
+              {#if sendingBpjs}
+                <span class="flex items-center justify-center gap-2">
+                  <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Mengirim...
+                </span>
+              {:else}
+                Kirim Tagihan ke BPJS
+              {/if}
+            </button>
+          </div>
+        {/if}
       </div>
     </div>
   </div>

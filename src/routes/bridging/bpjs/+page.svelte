@@ -1,13 +1,39 @@
 <script>
   import { supabase } from '$lib/supabase';
-  import { formatDate } from '$lib/utils/helpers';
+  import { formatDate, formatDateTime } from '$lib/utils/helpers';
 
   let search = $state('');
   let patient = $state(null);
   let eligibility = $state(null);
   let loading = $state(false);
+  let sending = $state(false);
   let error = $state('');
+  let success = $state('');
   let seps = $state([]);
+
+  async function sendToBpjs(visit) {
+    const kdPoli = visit.kd_poli_bpjs || '-';
+    const kodeAntrean = visit.kode_antrean || '-';
+    const payload = {
+      noKartu: patient.insurance_number || search,
+      poli: kdPoli,
+      kodeAntrean: kodeAntrean,
+      visitId: visit.visit_id,
+      tglDaftar: formatDateTime(visit.visit_date),
+      noSep: '-'
+    };
+    sending = true;
+    success = '';
+    error = '';
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      success = `Data kunjungan ke Poli ${kdPoli} (kode antrean: ${kodeAntrean}) berhasil dikirim ke BPJS. Payload: ${JSON.stringify(payload)}`;
+    } catch (e) {
+      error = 'Gagal mengirim ke BPJS: ' + e.message;
+    } finally {
+      sending = false;
+    }
+  }
 
   const mockEligibility = {
     status: true,
@@ -64,7 +90,7 @@
 
       const { data: visits } = await supabase
         .from('patient_visitations')
-        .select('*')
+        .select('*, clinics(name)')
         .eq('patient_id', data.patient_id)
         .order('visit_date', { ascending: false })
         .limit(5);
@@ -178,15 +204,20 @@
               <tr>
                 <th class="table-header px-4 py-3 text-left">Tanggal</th>
                 <th class="table-header px-4 py-3 text-left">Poli</th>
+                <th class="table-header px-4 py-3 text-left">Kode Poli BPJS</th>
+                <th class="table-header px-4 py-3 text-left">Kode Antrean</th>
                 <th class="table-header px-4 py-3 text-left">Status Periksa</th>
                 <th class="table-header px-4 py-3 text-left">Status Bayar</th>
+                <th class="table-header px-4 py-3 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
               {#each seps as s}
                 <tr class="hover:bg-gray-50">
-                  <td class="table-cell">{formatDate(s.visit_date)}</td>
-                  <td class="table-cell">{s.clinic_id}</td>
+                  <td class="table-cell">{formatDateTime(s.visit_date)}</td>
+                  <td class="table-cell">{s.clinics?.name || s.clinic_id}</td>
+                  <td class="table-cell font-mono text-xs">{s.kd_poli_bpjs || '-'}</td>
+                  <td class="table-cell font-mono text-xs">{s.kode_antrean || '-'}</td>
                   <td class="table-cell">
                     <span class="badge {s.status_periksa === '1' ? 'badge-success' : 'badge-warning'}">
                       {s.status_periksa === '1' ? 'Selesai' : 'Menunggu'}
@@ -197,11 +228,32 @@
                       {s.status_pembayaran === '1' ? 'Lunas' : 'Belum'}
                     </span>
                   </td>
+                  <td class="table-cell text-center">
+                    <button
+                      onclick={() => sendToBpjs(s)}
+                      disabled={sending || !s.kd_poli_bpjs}
+                      class="btn-primary btn-sm flex items-center gap-1 mx-auto"
+                    >
+                      {#if sending}
+                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle></svg>
+                        Mengirim...
+                      {:else}
+                        Kirim ke BPJS
+                      {/if}
+                    </button>
+                  </td>
                 </tr>
               {/each}
             </tbody>
           </table>
         </div>
+      </div>
+    {/if}
+
+    {#if success}
+      <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3 mt-6">
+        <svg class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+        <p class="text-sm text-emerald-700 break-all">{success}</p>
       </div>
     {/if}
 

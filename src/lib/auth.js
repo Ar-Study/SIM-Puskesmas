@@ -29,13 +29,33 @@ export async function getCurrentUser() {
     }
 
     if (!profile) {
-      profile = {
+      const fallback = {
         id: user.id,
         full_name: user.email?.split('@')[0] || 'User',
         role: 'admin',
         employee_id: null,
-        is_active: true
+        is_active: true,
+        profilePersisted: false
       };
+
+      // Try to persist the profile in the database
+      const { data: upserted, error: upsertErr } = await supabase
+        .from('profiles')
+        .upsert(fallback, { onConflict: 'id' })
+        .select()
+        .single();
+
+      if (upsertErr) {
+        console.warn('Profile upsert failed (RLS may block INSERT on profiles):', upsertErr.message);
+      } else {
+        fallback.profilePersisted = true;
+        Object.assign(fallback, upserted);
+      }
+
+      profile = fallback;
+    } else {
+      // Profile found in DB - it's persisted
+      profile.profilePersisted = true;
     }
 
     return { ...user, profile };

@@ -33,7 +33,7 @@
   async function loadData() {
     loading = true;
     try {
-      const [cRes, eRes, pRes, dRes, tRes, dxRes, uRes] = await Promise.all([
+  const [cRes, eRes, pRes, dRes, tRes, dxRes, uRes] = await Promise.all([
         supabase.from('clinics').select('*').order('name'),
         supabase.from('employees').select('*').order('full_name'),
         supabase.from('patients').select('*').order('full_name').limit(100),
@@ -73,12 +73,12 @@
 
   function getDefaultForm() {
     switch (activeTab) {
-      case 'poli': return { name: '', description: '', queue_prefix: 'A', max_queue_daily: 50 };
+      case 'poli': return { name: '', description: '', queue_prefix: 'A', max_queue_daily: 50, kd_poli_bpjs: '', kode_antrean: '' };
       case 'dokter': return { full_name: '', role: 'dokter', gender: 'L', phone: '', email: '', specialization: '', str_number: '' };
       case 'obat': return { name: '', generic_name: '', category: 'Lainnya', unit: 'tablet', buy_price: 0, sell_price: 0, stock: 0, min_stock: 10, expiry_date: '', manufacturer: '' };
       case 'tarif': return { category: 'Konsultasi', name: '', description: '', price: 0, clinic_id: '' };
       case 'diagnosis': return { code: '', name: '', description: '', category: '' };
-      default: return {};
+    default: return {};
     }
   }
 
@@ -96,7 +96,6 @@
 
       if (modalMode === 'edit') {
         const idField = activeTab === 'poli' ? 'clinic_id' :
-          activeTab === 'dokter' ? 'employee_id' :
           activeTab === 'obat' ? 'drug_id' :
           activeTab === 'tarif' ? 'tariff_id' :
           activeTab === 'diagnosis' ? 'diagnosis_id' : 'id';
@@ -125,7 +124,6 @@
         activeTab === 'tarif' ? 'tariffs' :
         activeTab === 'diagnosis' ? 'diagnoses' : null;
       const idField = activeTab === 'poli' ? 'clinic_id' :
-        activeTab === 'dokter' ? 'employee_id' :
         activeTab === 'obat' ? 'drug_id' :
         activeTab === 'tarif' ? 'tariff_id' :
         activeTab === 'diagnosis' ? 'diagnosis_id' : 'id';
@@ -177,27 +175,29 @@
         {/if}
       </div>
 
-      {#if activeTab === 'poli'}
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead><tr><th class="table-header px-4 py-3 text-left">Nama Poli</th><th class="table-header px-4 py-3 text-left">Deskripsi</th><th class="table-header px-4 py-3 text-left">Prefix</th><th class="table-header px-4 py-3 text-left">Max/Hari</th><th class="table-header px-4 py-3 text-left">Status</th><th class="table-header px-4 py-3 text-left">Aksi</th></tr></thead>
-            <tbody class="divide-y divide-gray-100">
-              {#each clinics as c}
-                <tr class="hover:bg-gray-50">
-                  <td class="table-cell font-medium">{c.name}</td>
-                  <td class="table-cell text-gray-500">{c.description || '-'}</td>
-                  <td class="table-cell">{c.queue_prefix}</td>
-                  <td class="table-cell">{c.max_queue_daily}</td>
-                  <td class="table-cell">{c.is_active ? 'Aktif' : 'Nonaktif'}</td>
-                  <td class="table-cell flex gap-2">
-                    <button onclick={() => openEdit(c)} class="text-sm text-blue-600 hover:text-blue-700">Edit</button>
-                    <button onclick={() => deleteItem(c)} class="text-sm text-red-600 hover:text-red-700">Hapus</button>
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
+        {#if activeTab === 'poli'}
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead><tr><th class="table-header px-4 py-3 text-left">Nama Poli</th><th class="table-header px-4 py-3 text-left">Deskripsi</th><th class="table-header px-4 py-3 text-left">Prefix</th><th class="table-header px-4 py-3 text-left">Max/Hari</th><th class="table-header px-4 py-3 text-left">Kode BPJS</th><th class="table-header px-4 py-3 text-left">Kode Antrean</th><th class="table-header px-4 py-3 text-left">Status</th><th class="table-header px-4 py-3 text-left">Aksi</th></tr></thead>
+              <tbody class="divide-y divide-gray-100">
+                {#each clinics as c}
+                  <tr class="hover:bg-gray-50">
+                    <td class="table-cell font-medium">{c.name}</td>
+                    <td class="table-cell text-gray-500">{c.description || '-'}</td>
+                    <td class="table-cell">{c.queue_prefix}</td>
+                    <td class="table-cell">{c.max_queue_daily}</td>
+                    <td class="table-cell font-mono text-xs">{c.kd_poli_bpjs || '-'}</td>
+                    <td class="table-cell font-mono text-xs">{c.kode_antrean || '-'}</td>
+                    <td class="table-cell">{c.is_active ? 'Aktif' : 'Nonaktif'}</td>
+                    <td class="table-cell flex gap-2">
+                      <button onclick={() => openEdit(c)} class="text-sm text-blue-600 hover:text-blue-700">Edit</button>
+                      <button onclick={() => deleteItem(c)} class="text-sm text-red-600 hover:text-red-700">Hapus</button>
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
 
       {:else if activeTab === 'dokter'}
         <div class="overflow-x-auto">
@@ -340,6 +340,8 @@
           <div><label class="label">Deskripsi</label><input type="text" bind:value={form.description} class="input-field" /></div>
           <div><label class="label">Prefix Antrian</label><input type="text" bind:value={form.queue_prefix} maxlength="2" class="input-field" /></div>
           <div><label class="label">Max/Hari</label><input type="number" bind:value={form.max_queue_daily} class="input-field" /></div>
+          <div><label class="label">Kode BPJS</label><input type="text" bind:value={form.kd_poli_bpjs} class="input-field" maxlength="10" placeholder="Contoh: INT, ANA, OBG" /></div>
+          <div><label class="label">Kode Antrean BPJS</label><input type="text" bind:value={form.kode_antrean} class="input-field" maxlength="5" placeholder="Contoh: A, B, C" /></div>
 
         {:else if activeTab === 'dokter'}
           <div><label class="label">Nama Lengkap</label><input type="text" bind:value={form.full_name} class="input-field" /></div>
