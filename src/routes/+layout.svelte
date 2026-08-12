@@ -134,6 +134,12 @@
   const isLoginPage = $derived(currentPath.startsWith('/login'));
   const isAPMPage = $derived(currentPath.startsWith('/apm'));
   const isPublicPage = $derived(isLoginPage || isAPMPage);
+
+  $effect(() => {
+    if (!loading && !user && !isPublicPage) {
+      goto(appPath('/login'));
+    }
+  });
 </script>
 
 {#if isPublicPage}
