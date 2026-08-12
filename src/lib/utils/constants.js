@@ -71,6 +71,27 @@ export const DISCHARGE_CONDITIONS = {
   lainnya: 'Lainnya'
 };
 
+export const BED_STATUS = {
+  available: 'Tersedia',
+  occupied: 'Terisi',
+  reserved: 'Dipesan',
+  maintenance: 'Perawatan'
+};
+
+export const ROOM_CLASSES = ['Kelas 1', 'Kelas 2', 'Kelas 3', 'VIP'];
+
+export const NURSING_SHIFTS = {
+  pagi: 'Pagi',
+  siang: 'Siang',
+  malam: 'Malam'
+};
+
+export const ADMISSION_TYPES = {
+  plan: 'Terencana',
+  emergency: 'Gawat Darurat',
+  transfer: 'Rujukan'
+};
+
 export const REPORT_TYPES = {
   kunjungan: 'Laporan Kunjungan Pasien',
   sensus_harian: 'Sensus Harian Rawat Jalan',

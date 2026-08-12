@@ -40,6 +40,7 @@
           employees (employee_id, full_name)
         `)
         .gte('visit_date', today)
+        .in('visit_type', ['rawat_jalan', 'igd'])
         .order('created_at', { ascending: true });
       if (error) throw error;
       visits = data || [];
