@@ -1,6 +1,7 @@
 <script>
   import { signIn } from '$lib/auth.js';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
 
   let email = $state('');
   let password = $state('');
@@ -15,7 +16,7 @@
 
     try {
       await signIn(email, password);
-      goto('/');
+      goto(`${base}/`);
     } catch (err) {
       console.error('Login error:', err);
       if (err.message?.includes('Invalid login')) {
