@@ -1,5 +1,6 @@
 <script>
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { page } from '$app/state';
   import { supabase } from '$lib/supabase';
   import { getCurrentUser, signOut } from '$lib/auth';
@@ -54,9 +55,20 @@
     }
   ];
 
+  function appPath(path) {
+    return `${base}${path}`;
+  }
+
+  function stripBase(pathname) {
+    if (!base || !pathname.startsWith(base)) return pathname;
+    const stripped = pathname.slice(base.length);
+    return stripped || '/';
+  }
+
   function isActive(href) {
-    if (href === '/') return page.url.pathname === '/';
-    return page.url.pathname.startsWith(href);
+    const current = stripBase(page.url.pathname);
+    if (href === '/') return current === '/';
+    return current.startsWith(href);
   }
 
   function toggleSection(sectionId) {
@@ -66,7 +78,7 @@
   async function handleLogout() {
     try {
       await signOut();
-      goto('/login');
+      goto(appPath('/login'));
     } catch (err) {
       console.error('Logout failed:', err);
     }
@@ -94,7 +106,7 @@
         if (event === 'SIGNED_OUT') {
           user = null;
           profile = null;
-          goto('/login');
+          goto(appPath('/login'));
         } else if (event === 'SIGNED_IN' && session) {
           getCurrentUser().then(u => {
             if (u) {
@@ -118,7 +130,7 @@
       ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
       : profile?.email?.slice(0, 2).toUpperCase() || '??'
   );
-  const currentPath = $derived(page.url.pathname);
+  const currentPath = $derived(stripBase(page.url.pathname));
   const isLoginPage = $derived(currentPath.startsWith('/login'));
   const isAPMPage = $derived(currentPath.startsWith('/apm'));
   const isPublicPage = $derived(isLoginPage || isAPMPage);
@@ -193,7 +205,7 @@
               {#each section.items as item}
                 <li>
                   <a
-                    href={item.href}
+                    href={appPath(item.href)}
                     onclick={closeSidebar}
                     class="group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150
                       {isActive(item.href)
