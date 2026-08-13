@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { generateNoRegistration, generateVisitId, generateQueueNumber, debounce } from '$lib/utils/helpers';
 
@@ -44,6 +45,10 @@
     doctor_id: '',
     description: ''
   });
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   async function searchPatient() {
     if (!searchQuery.trim()) return;
@@ -245,7 +250,7 @@
           status: 'waiting'
         });
 
-      goto('/registrasi');
+      goto(appPath('/registrasi'));
     } catch (e) {
       console.error('Registrasi gagal:', e);
       error = e.message || 'Terjadi kesalahan saat menyimpan data';
@@ -266,7 +271,7 @@
 <div class="space-y-6">
   <div class="flex items-center gap-4">
     <a
-      href="/registrasi"
+      href={appPath('/registrasi')}
       class="flex items-center justify-center w-10 h-10 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
     >
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -599,7 +604,7 @@
     {/if}
 
     <div class="flex items-center justify-end gap-3 mt-6">
-      <a href="/registrasi" class="btn-secondary">
+      <a href={appPath('/registrasi')} class="btn-secondary">
         Batal
       </a>
       <button

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate, formatDateTime, calculateAge } from '$lib/utils/helpers';
   import { STATUS_PEMBAYARAN, STATUS_PERIKSA, STATUS_KELUAR, VISIT_TYPES } from '$lib/utils/constants';
@@ -19,6 +20,10 @@
   let error = $state('');
 
   const visitId = $derived(page.params.visitId);
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   async function loadVisitData() {
     loading = true;
@@ -84,7 +89,7 @@
 <div class="space-y-6">
   <div class="flex items-center gap-4">
     <a
-      href="/registrasi"
+      href={appPath('/registrasi')}
       class="flex items-center justify-center w-10 h-10 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
     >
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -97,7 +102,7 @@
     </div>
     <div class="flex items-center gap-2">
       <a
-        href="/registrasi/{visitId}/edit"
+        href={appPath(`/registrasi/${visitId}/edit`)}
         class="btn-secondary flex items-center gap-2"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -106,7 +111,7 @@
         Edit
       </a>
       <a
-        href="/rawat-jalan/{visitId}"
+        href={appPath(`/rawat-jalan/${visitId}`)}
         class="btn-primary flex items-center gap-2"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -128,7 +133,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
         </svg>
         <p class="text-red-500 font-medium">{error}</p>
-        <a href="/registrasi" class="btn-secondary mt-4 inline-flex items-center gap-2">
+        <a href={appPath('/registrasi')} class="btn-secondary mt-4 inline-flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
           </svg>
@@ -488,7 +493,7 @@
           <h3 class="text-sm font-semibold text-gray-900 mb-3">Aksi Cepat</h3>
           <div class="space-y-2">
             <a
-              href="/rawat-jalan/{visitId}"
+              href={appPath(`/rawat-jalan/${visitId}`)}
               class="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-50 transition-colors group"
             >
               <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors">
@@ -502,7 +507,7 @@
               </div>
             </a>
             <a
-              href="/registrasi/{visitId}/edit"
+              href={appPath(`/registrasi/${visitId}/edit`)}
               class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
             >
               <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
@@ -516,7 +521,7 @@
               </div>
             </a>
             <a
-              href="/kasir/{visitId}"
+              href={appPath(`/kasir/${visitId}`)}
               class="flex items-center gap-3 p-3 rounded-lg hover:bg-emerald-50 transition-colors group"
             >
               <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-200 transition-colors">

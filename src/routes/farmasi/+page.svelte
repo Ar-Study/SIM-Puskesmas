@@ -1,5 +1,6 @@
 <script>
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate, formatCurrency } from '$lib/utils/helpers';
 
@@ -9,6 +10,10 @@
   let activeTab = $state('prescriptions');
   let searchDrug = $state('');
   let searchPrescription = $state('');
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   let filteredPrescriptions = $derived(
     prescriptions.filter(p => {
@@ -64,7 +69,7 @@
   }
 
   function goToPrescription(id) {
-    goto(`/farmasi/resep/${id}`);
+    goto(appPath(`/farmasi/resep/${id}`));
   }
 
   $effect(() => {

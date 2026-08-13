@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate, formatDateTime } from '$lib/utils/helpers';
   import { BED_STATUS, ADMISSION_TYPES, ROOM_CLASSES } from '$lib/utils/constants';
@@ -17,6 +18,10 @@
   let showBedModal = $state(false);
   let roomForm = $state({ name: '', class: 'Kelas 3', floor: '2', bed_count: 2, notes: '' });
   let bedForm = $state({ room_id: '', bed_number: '', notes: '' });
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   let stats = $derived({
     totalBeds: beds.filter(b => b.is_active).length,
@@ -84,7 +89,7 @@
   }
 
   function goToAdmit(bedId = null) {
-    goto(bedId ? `/rawat-inap/admit?bed=${bedId}` : '/rawat-inap/admit');
+    goto(appPath(bedId ? `/rawat-inap/admit?bed=${bedId}` : '/rawat-inap/admit'));
   }
 
   async function addRoom() {
@@ -390,7 +395,7 @@
                   <td class="table-cell text-xs">{ADMISSION_TYPES[adm.admission_type] || adm.admission_type}</td>
                   <td class="table-cell text-xs">{formatDateTime(adm.admission_date)}</td>
                   <td class="table-cell text-center">
-                    <a href="/rawat-inap/{adm.admission_id}" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-800 font-medium">
+                    <a href={appPath(`/rawat-inap/${adm.admission_id}`)} class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-800 font-medium">
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />

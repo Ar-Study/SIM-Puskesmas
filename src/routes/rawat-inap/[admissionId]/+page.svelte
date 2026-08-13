@@ -1,6 +1,7 @@
 <script>
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { onMount } from 'svelte';
   import { supabase } from '$lib/supabase';
   import { getCurrentUser, logAudit } from '$lib/auth';
@@ -61,6 +62,10 @@
     { id: 'asuhan', label: 'Asuhan Keperawatan', icon: 'clipboard' },
     { id: 'ringkasan', label: 'Ringkasan', icon: 'document' }
   ];
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   function showToast(message, type = 'success') {
     toast = { show: true, message, type };
@@ -281,7 +286,7 @@
 
       showDischargeModal = false;
       showToast('Pasien berhasil dipulangkan. Bed kini tersedia.');
-      goto('/rawat-inap');
+      goto(appPath('/rawat-inap'));
     } catch (e) {
       console.error('Gagal proses pulang:', e);
       showToast('Gagal memproses kepulangan: ' + e.message, 'error');
@@ -349,7 +354,7 @@
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
     </svg>
     <h3 class="text-lg font-semibold text-gray-700">Admisi tidak ditemukan</h3>
-    <button class="btn-primary mt-4" onclick={() => goto('/rawat-inap')}>Kembali ke Rawat Inap</button>
+    <button class="btn-primary mt-4" onclick={() => goto(appPath('/rawat-inap'))}>Kembali ke Rawat Inap</button>
   </div>
 {:else}
   <div class="space-y-4">
@@ -397,7 +402,7 @@
               {DISCHARGE_CONDITIONS[admission.discharge_condition] || 'Sudah Pulang'}
             </span>
           {/if}
-          <button class="btn-secondary btn-sm" onclick={() => goto('/rawat-inap')}>
+          <button class="btn-secondary btn-sm" onclick={() => goto(appPath('/rawat-inap'))}>
             <svg class="w-4 h-4 mr-1.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
             </svg>

@@ -1,6 +1,7 @@
 <script>
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate, formatCurrency } from '$lib/utils/helpers';
 
@@ -15,6 +16,10 @@
   let discount = $state(0);
   let paymentMethod = $state('cash');
   let paymentNote = $state('');
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   let groupedBills = $derived(
     treatmentBills.reduce((acc, bill) => {
@@ -202,12 +207,12 @@
 {:else if !visit}
   <div class="text-center py-12">
     <p class="text-gray-500">Data kunjungan tidak ditemukan</p>
-    <button onclick={() => goto('/kasir')} class="btn-primary mt-4">Kembali</button>
+    <button onclick={() => goto(appPath('/kasir'))} class="btn-primary mt-4">Kembali</button>
   </div>
 {:else}
   <div class="space-y-6">
     <div class="flex items-center gap-4">
-      <button onclick={() => goto('/kasir')} class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+      <button onclick={() => goto(appPath('/kasir'))} class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
         <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>

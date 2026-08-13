@@ -1,6 +1,7 @@
 <script>
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { onMount } from 'svelte';
   import { supabase } from '$lib/supabase';
   import { getCurrentUser, logAudit } from '$lib/auth';
@@ -84,6 +85,10 @@
     { id: 'resep', label: 'Resep', icon: 'pill' },
     { id: 'tagihan', label: 'Tagihan', icon: 'receipt' }
   ];
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   function showToast(message, type = 'success') {
     toast = { show: true, message, type };
@@ -794,7 +799,7 @@
     </svg>
     <h3 class="text-lg font-semibold text-gray-700">Kunjungan tidak ditemukan</h3>
     <p class="text-sm text-gray-500 mt-1">Data kunjungan dengan ID <span class="font-mono text-gray-600">{visitId}</span> tidak ditemukan.</p>
-    <button class="btn-primary mt-4" onclick={() => goto('/rawat-jalan')}>Kembali ke Rawat Jalan</button>
+    <button class="btn-primary mt-4" onclick={() => goto(appPath('/rawat-jalan'))}>Kembali ke Rawat Jalan</button>
   </div>
 {:else}
   <div class="space-y-4">
@@ -853,7 +858,7 @@
               Sudah Diperiksa
             </span>
           {/if}
-          <button class="btn-secondary btn-sm" onclick={() => goto('/rawat-jalan')}>
+          <button class="btn-secondary btn-sm" onclick={() => goto(appPath('/rawat-jalan'))}>
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>

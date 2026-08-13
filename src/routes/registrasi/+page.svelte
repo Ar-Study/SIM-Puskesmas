@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate } from '$lib/utils/helpers';
   import { STATUS_PEMBAYARAN, STATUS_PERIKSA } from '$lib/utils/constants';
@@ -10,6 +11,10 @@
   let searchQuery = $state('');
   let filterDate = $state(new Date().toISOString().split('T')[0]);
   let debounceTimer;
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   async function fetchVisits() {
     loading = true;
@@ -71,7 +76,7 @@
       <p class="text-sm text-gray-500 mt-1">Daftar kunjungan pasien hari ini</p>
     </div>
     <a
-      href="/registrasi/tambah"
+      href={appPath('/registrasi/tambah')}
       class="btn-success flex items-center gap-2 w-fit"
     >
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -135,7 +140,7 @@
         </svg>
         <p class="text-gray-500 font-medium">Tidak ada data registrasi</p>
         <p class="text-sm text-gray-400 mt-1">Belum ada kunjungan pada tanggal ini</p>
-        <a href="/registrasi/tambah" class="btn-success mt-4 inline-flex items-center gap-2">
+        <a href={appPath('/registrasi/tambah')} class="btn-success mt-4 inline-flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
@@ -187,7 +192,7 @@
                 </td>
                 <td class="table-cell text-center">
                   <a
-                    href="/registrasi/{visit.visit_id}"
+                    href={appPath(`/registrasi/${visit.visit_id}`)}
                     class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-800 font-medium transition-colors"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

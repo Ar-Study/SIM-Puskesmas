@@ -1,5 +1,6 @@
 <script>
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate, calculateAge } from '$lib/utils/helpers';
 
@@ -7,6 +8,10 @@
   let loading = $state(true);
   let search = $state('');
   let searchTimeout = $state(null);
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   async function searchPatients() {
     loading = true;
@@ -51,7 +56,7 @@
   }
 
   function goToDetail(patientId) {
-    goto(`/rekam-medis/${patientId}`);
+    goto(appPath(`/rekam-medis/${patientId}`));
   }
 
   $effect(() => {

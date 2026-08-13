@@ -1,5 +1,6 @@
 <script>
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate, formatCurrency } from '$lib/utils/helpers';
 
@@ -7,6 +8,10 @@
   let loading = $state(true);
   let search = $state('');
   let filterStatus = $state('all');
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   let filteredInvoices = $derived(
     invoices.filter(inv => {
@@ -54,7 +59,7 @@
   }
 
   function goToDetail(visitId) {
-    goto(`/kasir/${visitId}`);
+    goto(appPath(`/kasir/${visitId}`));
   }
 
   $effect(() => {

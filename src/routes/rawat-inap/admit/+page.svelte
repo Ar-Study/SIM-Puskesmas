@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { page } from '$app/state';
   import { supabase } from '$lib/supabase';
   import { getCurrentUser, logAudit } from '$lib/auth';
@@ -33,6 +34,10 @@
     doctor_id: '',
     notes: ''
   });
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   async function loadMaster() {
     loading = true;
@@ -179,7 +184,7 @@
         bed_id: form.bed_id
       });
 
-      goto(`/rawat-inap/${admission.admission_id}`);
+      goto(appPath(`/rawat-inap/${admission.admission_id}`));
     } catch (e) {
       console.error('Admisi gagal:', e);
       error = e.message || 'Gagal melakukan admisi pasien';
@@ -205,7 +210,7 @@
 
 <div class="space-y-6">
   <div class="flex items-center gap-4">
-    <a href="/rawat-inap" class="flex items-center justify-center w-10 h-10 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+    <a href={appPath('/rawat-inap')} class="flex items-center justify-center w-10 h-10 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>
@@ -365,7 +370,7 @@
       {/if}
 
       <div class="flex items-center justify-end gap-3">
-        <a href="/rawat-inap" class="btn-secondary">Batal</a>
+        <a href={appPath('/rawat-inap')} class="btn-secondary">Batal</a>
         <button type="submit" class="btn-success flex items-center gap-2" disabled={saving}>
           {#if saving}
             <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">

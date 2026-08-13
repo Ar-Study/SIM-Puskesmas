@@ -1,5 +1,6 @@
 <script>
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate } from '$lib/utils/helpers';
   import { STATUS_PERIKSA } from '$lib/utils/constants';
@@ -8,6 +9,10 @@
   let loading = $state(true);
   let search = $state('');
   let filterStatus = $state('all');
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   let filteredVisits = $derived(
     visits.filter(v => {
@@ -52,7 +57,7 @@
   }
 
   function goToDetail(visitId) {
-    goto(`/rawat-jalan/${visitId}`);
+    goto(appPath(`/rawat-jalan/${visitId}`));
   }
 
   $effect(() => {

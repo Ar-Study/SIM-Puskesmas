@@ -1,6 +1,7 @@
 <script>
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate, formatCurrency } from '$lib/utils/helpers';
 
@@ -9,6 +10,10 @@
   let prescription = $state(null);
   let loading = $state(true);
   let dispensing = $state(false);
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   async function loadPrescription() {
     loading = true;
@@ -102,12 +107,12 @@
 {:else if !prescription}
   <div class="text-center py-12">
     <p class="text-gray-500">Data resep tidak ditemukan</p>
-    <button onclick={() => goto('/farmasi')} class="btn-primary mt-4">Kembali</button>
+    <button onclick={() => goto(appPath('/farmasi'))} class="btn-primary mt-4">Kembali</button>
   </div>
 {:else}
   <div class="space-y-6">
     <div class="flex items-center gap-4">
-      <button onclick={() => goto('/farmasi')} class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+      <button onclick={() => goto(appPath('/farmasi'))} class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
         <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>

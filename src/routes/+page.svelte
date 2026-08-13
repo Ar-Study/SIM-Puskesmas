@@ -1,11 +1,16 @@
 <script>
   import { onMount } from 'svelte';
+  import { base } from '$app/paths';
   import { supabase } from '$lib/supabase';
   import { formatDate, formatCurrency } from '$lib/utils/helpers';
 
   let stats = $state({ patients: 0, visitsToday: 0, queueWaiting: 0, revenue: 0 });
   let recentVisits = $state([]);
   let loading = $state(true);
+
+  function appPath(path) {
+    return `${base}${path}`;
+  }
 
   onMount(async () => {
     try {
@@ -147,7 +152,7 @@
       <div class="card">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Akses Cepat</h2>
         <div class="space-y-3">
-          <a href="/registrasi/tambah" class="flex items-center gap-3 p-3 rounded-lg hover:bg-emerald-50 transition-colors">
+          <a href={appPath('/registrasi/tambah')} class="flex items-center gap-3 p-3 rounded-lg hover:bg-emerald-50 transition-colors">
             <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
               <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -158,7 +163,7 @@
               <p class="text-xs text-gray-500">Daftarkan pasien baru</p>
             </div>
           </a>
-          <a href="/apm" class="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors">
+          <a href={appPath('/apm')} class="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors">
             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-15a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 4.5v15a2.25 2.25 0 0 0 2.25 2.25Z" />
@@ -169,7 +174,7 @@
               <p class="text-xs text-gray-500">Kiosk APM</p>
             </div>
           </a>
-          <a href="/rawat-jalan" class="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50 transition-colors">
+          <a href={appPath('/rawat-jalan')} class="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50 transition-colors">
             <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
               <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6z" />
@@ -180,7 +185,7 @@
               <p class="text-xs text-gray-500">Pemeriksaan pasien</p>
             </div>
           </a>
-          <a href="/farmasi" class="flex items-center gap-3 p-3 rounded-lg hover:bg-amber-50 transition-colors">
+          <a href={appPath('/farmasi')} class="flex items-center gap-3 p-3 rounded-lg hover:bg-amber-50 transition-colors">
             <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
               <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3" />
